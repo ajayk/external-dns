@@ -13,6 +13,16 @@
 # limitations under the License.
 
 # cover-html creates coverage report for whole project excluding vendor and opens result in the default browser
+BINARY        ?= external-dns
+SOURCES        = $(shell find . -name '*.go')
+IMAGE_STAGING  = gcr.io/adobeioo/$(BINARY)
+IMAGE         ?= us.gcr.io/k8s-artifacts-prod/external-dns/$(BINARY)
+VERSION       ?= $(shell git describe --tags --always --dirty)
+BUILD_FLAGS   ?= -v
+LDFLAGS       ?= -X sigs.k8s.io/external-dns/pkg/apis/externaldns.Version=$(VERSION) -w -s
+ARCHS         = amd64 arm64v8 arm32v7
+SHELL         = /bin/bash
+
 .PHONY: cover cover-html
 .DEFAULT_GOAL := build
 
@@ -60,16 +70,6 @@ test:
 
 # The build targets allow to build the binary and docker image
 .PHONY: build build.docker build.mini
-
-BINARY        ?= external-dns
-SOURCES        = $(shell find . -name '*.go')
-IMAGE_STAGING  = gcr.io/k8s-staging-external-dns/$(BINARY)
-IMAGE         ?= us.gcr.io/k8s-artifacts-prod/external-dns/$(BINARY)
-VERSION       ?= $(shell git describe --tags --always --dirty)
-BUILD_FLAGS   ?= -v
-LDFLAGS       ?= -X sigs.k8s.io/external-dns/pkg/apis/externaldns.Version=$(VERSION) -w -s
-ARCHS         = amd64 arm64v8 arm32v7
-SHELL         = /bin/bash
 
 
 build: build/$(BINARY)
